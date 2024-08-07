@@ -44,7 +44,7 @@ router.post("/signup", async (req, res) => {
     //Creates new account.
     await Account.create({
         userId: userId,
-        balance: 1 + Math.random() * 10000;
+        balance: 1 + Math.random() * 10000,
     })
 
     const token = jwt.sign({
@@ -70,9 +70,8 @@ router.post("/signin", async (req, res) => {
         })
     }
 
-    const user = User.findOne({
+    const user = await User.findOne({
         username: req.body.username,
-        password: req.body.password
     })
     if (!user) {
         return res.status(400).json({ message: 'Invalid username or password' });
@@ -89,7 +88,6 @@ router.post("/signin", async (req, res) => {
         res.json({
             token: token
         })
-        return;
     }
     res.status(411).json({
         message: "Error while logging in"
