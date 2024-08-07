@@ -49,4 +49,44 @@ router.post("/signup", async (req, res) => {
     })
 })
 
+const signinBody = zod.object({
+    username: zod.string().email(),
+    password: zod.string(),
+})
+
+router.post("/signin", async (req, res) => {
+    const { success } = signupBody.safeParse(req.body);
+    if(!success){
+        return res.status(411).json({
+            message:"Incorrect inputs"
+        })
+    }
+
+    const user = User.findOne({
+        username: req.body.username,
+        password: req.body.password
+    })
+    if (!user) {
+        return res.status(400).json({ message: 'Invalid username or password' });
+    }
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid username or password' });
+    }
+    if (user) {
+        const token = jwt.sign({
+            userId: user._id
+        }, JWT_SECRET);
+  
+        res.json({
+            token: token
+        })
+        return;
+    }
+    res.status(411).json({
+        message: "Error while logging in"
+    })
+})
+
+
 module.exports = userRouter;
