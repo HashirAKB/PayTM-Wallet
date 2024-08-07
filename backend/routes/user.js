@@ -72,7 +72,6 @@ router.post("/signin", async (req, res) => {
 
     const user = User.findOne({
         username: req.body.username,
-        password: req.body.password
     })
     if (!user) {
         return res.status(400).json({ message: 'Invalid username or password' });
