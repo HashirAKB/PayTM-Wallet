@@ -22,8 +22,8 @@ router.post("/signup", async (req, res) => {
             message: "Email Already Taken/ Incorrect Inputs"
         })
     }
-    const existingUser = User.findOne({
-        username: req.body.username;
+    const existingUser = await User.findOne({
+        username: req.body.username
     })
     if(existingUser){
         return res.status(411).json({
