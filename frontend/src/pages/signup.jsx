@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
+import axiosInstance from "../utils/axiosInstance";
+
 import {
     Card,
     CardContent,
@@ -16,12 +18,15 @@ import {
   } from "@/components/ui/card"
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogAction,
+  } from "@/components/ui/alert-dialog";
 
 const signUpSchema = z.object({
     firstname: z.string().nonempty('First Name is required'),
@@ -36,6 +41,12 @@ export const SignUp = () => {
     const [firstNameError, setfirstNameError] = useState('');
     const [lastNameError, setlastNameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleNavigateToSignin = () => {
+        setIsSuccess(false);
+        navigate('/signin');
+    }
 
     const submitAction = (event) => {
         event.preventDefault(); // Add this line to prevent the page from reloading
@@ -54,7 +65,24 @@ export const SignUp = () => {
             setPasswordError('');
             setlastNameError('');
             setfirstNameError('');
-            navigate('/dashboard');
+            axiosInstance.post('/api/v1/user/signup', {
+                "username": validatedData.email,
+                "password": validatedData.password,
+                "firstName": validatedData.firstname,
+                "lastName": validatedData.lastname,
+              })
+              .then(function (response) {
+                console.log(response);
+                if(response.status == 200){
+                    console.log("Signup successfull");
+                    setIsSuccess(true);
+                }
+              })
+              .catch(function (error) {
+                console.log(error);
+                navigate('/');
+              });
+
           } catch (error) {
             console.error('Validation error:', error);
             // Handle validation errors here
@@ -111,6 +139,23 @@ export const SignUp = () => {
                     <Link to="/signin">SignIn Here</Link></p>
                 </CardFooter>
             </Card>
+            {isSuccess && (
+                <AlertDialog open={isSuccess} onOpenChange={setIsSuccess}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Account Created</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Your account has been created successfully.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogAction onClick={handleNavigateToSignin}>
+                                Continue to SignIn
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
     )
 }
