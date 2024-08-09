@@ -24,6 +24,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogAction,
+  } from "@/components/ui/alert-dialog";
+
 const signInSchema = z.object({
     email: z.string().email('Enter a proper email'),
     password: z.string().nonempty('Password is required'),
@@ -64,7 +75,6 @@ export const SignIn = () => {
                     setIsSuccess(true);
                 }
               })
-            navigate('/dashboard');
           } catch (error) {
             console.error('Validation error:', error);
             // Handle validation errors here
@@ -121,7 +131,7 @@ export const SignIn = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogAction onClick={handleNavigateDashboard}>
-                                Opening Dashboard
+                                Go To Dashboard
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
