@@ -7,7 +7,7 @@ export const NavBar = () => {
     <header className="flex items-center justify-between h-20 px-6 py-4 bg-[#0f172a]">
       <div className="flex items-center">
         <Link
-            href="#"
+            to="#"
             className="flex items-center gap-3 text-xl font-bold text-white hover:text-gray-200 transition-colors duration-300"
             prefetch={false}
         >
