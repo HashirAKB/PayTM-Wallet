@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from "../utils/axiosInstance";
 
 import {
     Card,
@@ -23,6 +24,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogAction,
+  } from "@/components/ui/alert-dialog";
+
 const signInSchema = z.object({
     email: z.string().email('Enter a proper email'),
     password: z.string().nonempty('Password is required'),
@@ -32,10 +44,16 @@ export const SignIn = () => {
     const navigate = useNavigate();
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const handleNavigateDashboard = () => {
+        setIsSuccess(false);
+        navigate('/dashboard');
+    }
 
     const submitAction = (event) => {
         event.preventDefault(); // Add this line to prevent the page from reloading
-        console.log("Hello There!");
+        console.log("Sign In clicked.");
         const formData = {
             email: event.target.email.value,
             password: event.target.password.value,
@@ -46,7 +64,17 @@ export const SignIn = () => {
             // Perform additional sign-in logic here
             setEmailError('');
             setPasswordError('');
-            navigate('/dashboard');
+            axiosInstance.post('/api/v1/user/signin', {
+                "username": validatedData.email,
+                "password": validatedData.password,
+              })
+              .then(function (response) {
+                console.log(response.data);
+                if(response.status == 200){
+                    console.log("Signup successfull");
+                    setIsSuccess(true);
+                }
+              })
           } catch (error) {
             console.error('Validation error:', error);
             // Handle validation errors here
@@ -92,6 +120,23 @@ export const SignIn = () => {
                     <Link to="/signup">SignUp Here</Link></p>
                 </CardFooter>
             </Card>
+            {isSuccess && (
+                <AlertDialog open={isSuccess} onOpenChange={setIsSuccess}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Signin Success</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Enjoy hassle free money transfer with paytm wallet.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogAction onClick={handleNavigateDashboard}>
+                                Go To Dashboard
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
     )
 }
