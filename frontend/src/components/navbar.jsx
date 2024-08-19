@@ -1,8 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { useAuth } from '@/utils/AuthContext';
 
 export const NavBar = () => {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+
+  const handleLogout = () => {
+    localStorage.removeItem('walletAuthToken');
+    setIsAuthenticated(false);
+  };
+
   return (
     <header className="flex items-center justify-between h-20 px-6 py-4 bg-[#0f172a]">
       <div className="flex items-center">
@@ -23,21 +31,34 @@ export const NavBar = () => {
         >
           Home
         </Link>
-        <Link
+        {isAuthenticated ? (
+          <>
+          <Link
           to="/dashboard"
           className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
           prefetch={false}
         >
-          Payments
+          Send Money
         </Link>
-        <Link
-          href="#"
+          <Link
+          to="/profile"
           className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
           prefetch={false}
         >
-          Profile
+          Manage Account
         </Link>
         <Link
+          onClick={handleLogout}
+          to="/"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Logout
+        </Link>
+        </>
+        ) : (
+          <>
+          <Link
             to="/signup"
             className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
             prefetch={false}
@@ -51,13 +72,8 @@ export const NavBar = () => {
         >
           Signin
         </Link>
-        <Link
-          to="/"
-          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-          prefetch={false}
-        >
-          Logout
-        </Link>
+          </>
+        )}
       </nav>
       <Sheet>
         <SheetTrigger asChild>
@@ -68,49 +84,57 @@ export const NavBar = () => {
         </SheetTrigger>
         <SheetContent side="right" className="md:hidden bg-primary">
           <div className="grid gap-4 p-4 bg-[#0f172a]">
-            <Link
-              to="/"
-              className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-              prefetch={false}
-            >
-              Home
-            </Link>
-            <Link
-              to="/dashboard"
-              className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-              prefetch={false}
-            >
-              Payments
-            </Link>
-            <Link
-              href="#"
-              className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-              prefetch={false}
-            >
-              Profile
-            </Link>
-            <Link
+          <Link
+          to="/"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Home
+        </Link>
+        {isAuthenticated ? (
+          <>
+          <Link
+          to="/dashboard"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Send Money
+        </Link>
+          <Link
+          to="/profile"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Manage Account
+        </Link>
+        <Link
+          onClick={handleLogout}
+          to="/"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Logout
+        </Link>
+        </>
+        ) : (
+          <>
+          <Link
             to="/signup"
             className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
             prefetch={false}
             >
             Signup
             </Link>
-            <Link
-            to="/signin"
-            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-            prefetch={false}
-            >
-            Signin
-            </Link>
-            <Link
-            to="/"
-            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
-            prefetch={false}
-            >
-            Logout
-            </Link>
-          </div>
+        <Link
+          to="/signin"
+          className="px-3 py-2 rounded-md text-sm font-medium hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:text-primary-foreground text-[#e0e3e7]"
+          prefetch={false}
+        >
+          Signin
+        </Link>
+          </>
+        )}
+        </div>
         </SheetContent>
       </Sheet>
     </header>
