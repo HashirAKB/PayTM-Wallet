@@ -50,7 +50,6 @@ export const SignUp = () => {
 
     const submitAction = (event) => {
         event.preventDefault(); // Add this line to prevent the page from reloading
-        console.log("Hello There!");
         const formData = {
             firstname: event.target.firstname.value,
             lastname: event.target.lastname.value,
@@ -59,7 +58,6 @@ export const SignUp = () => {
           };
         try {
             const validatedData = signUpSchema.parse(formData);
-            console.log('Validated data:', validatedData);
             // Perform additional sign-in logic here
             setEmailError('');
             setPasswordError('');
@@ -72,7 +70,6 @@ export const SignUp = () => {
                 "lastName": validatedData.lastname,
               })
               .then(function (response) {
-                console.log(response);
                 if(response.status == 200){
                     console.log("Signup successfull");
                     setIsSuccess(true);
@@ -84,7 +81,6 @@ export const SignUp = () => {
               });
 
           } catch (error) {
-            console.error('Validation error:', error);
             // Handle validation errors here
             setEmailError(error.issues.find((issue) => issue.path[0] === 'email')?.message || '');
             setPasswordError(error.issues.find((issue) => issue.path[0] === 'password')?.message || '');
