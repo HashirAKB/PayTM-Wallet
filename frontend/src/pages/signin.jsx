@@ -4,8 +4,9 @@ import { Label } from "@/components/ui/label"
 import { z } from 'zod';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import axiosInstance from "../utils/axiosInstance";
+import { useAuth } from "@/utils/AuthContext";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     Card,
@@ -42,25 +43,29 @@ const signInSchema = z.object({
   
 export const SignIn = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleNavigateDashboard = () => {
         setIsSuccess(false);
-        navigate('/dashboard');
+        // Redirect the user
+        const origin = location.state?.from?.pathname || '/dashboard';
+        navigate(origin);
     }
 
     const submitAction = (event) => {
         event.preventDefault(); // Add this line to prevent the page from reloading
-        console.log("Sign In clicked.");
         const formData = {
             email: event.target.email.value,
             password: event.target.password.value,
           };
         try {
             const validatedData = signInSchema.parse(formData);
-            console.log('Validated data:', validatedData);
             // Perform additional sign-in logic here
             setEmailError('');
             setPasswordError('');
@@ -69,17 +74,44 @@ export const SignIn = () => {
                 "password": validatedData.password,
               })
               .then(function (response) {
-                console.log(response.data);
                 if(response.status == 200){
-                    console.log("Signup successfull");
+                    localStorage.setItem('walletAuthToken', response.data.token);
+                    setIsAuthenticated(true);
                     setIsSuccess(true);
                 }
               })
-          } catch (error) {
-            console.error('Validation error:', error);
+              .catch(function (error) {
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    if (error.response.status === 401) {
+                      setError("Invalid credentials. Please check your email and password.");
+                    } else if (error.response.status === 404) {
+                      setError("User not found. Please check your email.");
+                    } else {
+                      setError(error.response.data.message || "An error occurred during sign in. Please try again.");
+                    }
+                  } else if (error.request) {
+                    // The request was made but no response was received
+                    setError("No response from server. Please try again later.");
+                  } else {
+                    // Something happened in setting up the request that triggered an Error
+                    setError("An error occurred. Please try again.");
+                  }
+                  setIsSuccess(false);
+                  setIsAuthenticated(false);
+              })
+              .finally(function () {
+                // Always executed
+                setIsLoading(false);
+              });
+             } catch (error) {
+            console.error('Validation error');
             // Handle validation errors here
             setEmailError(error.issues.find((issue) => issue.path[0] === 'email')?.message || '');
             setPasswordError(error.issues.find((issue) => issue.path[0] === 'password')?.message || '');
+            setIsSuccess(false);
+            setIsAuthenticated(false);
           }
     }
     return(
@@ -111,6 +143,7 @@ export const SignIn = () => {
                     </a>
                     </CardDescription>
                     </div>
+                    {error && <p className="text-red-500">{error}</p>}
                     <Button type="submit">SignIn</Button>
                 </div>
                 </form>
@@ -131,7 +164,7 @@ export const SignIn = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogAction onClick={handleNavigateDashboard}>
-                                Go To Dashboard
+                                Acess Wallet
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
