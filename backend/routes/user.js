@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const JWT_SECRET = process.env.JWT_SECRET;
 const { authMiddleware } = require('../middlewares/middleware');
+const mongoose = require('mongoose');
 
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -99,9 +100,9 @@ userRouter.post("/signin", async (req, res) => {
 });
 
 const updateBody = zod.object({
-    firstName:zod.string(),
-    lastName:zod.string(),
-    password: zod.string()
+    firstName:zod.string().optional(),
+    lastName:zod.string().optional(),
+    password: zod.string().optional()
 })
 
 userRouter.put("/", authMiddleware, async (req, res)=> {
@@ -122,8 +123,9 @@ userRouter.put("/", authMiddleware, async (req, res)=> {
     })
 })
 
-userRouter.get('/bulk', async (req, res) => {
+userRouter.get('/bulk', authMiddleware, async (req, res) => {
     const filter = req.query.filter || "";
+    const objectIdFilter = mongoose.Types.ObjectId.isValid(filter) ? { _id: filter } : null;
     const users = await User.find({
         $or:[
             {
@@ -136,17 +138,30 @@ userRouter.get('/bulk', async (req, res) => {
                     "$regex":filter
                 }
             },
-        ]
+            objectIdFilter
+        ].filter(Boolean)
     })
 
     res.json({
-        user: users.map(user => ({
+        user: users
+        .filter(user => user._id.toString() !== req.userid)
+        .map(user => ({
             username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
             _id: user._id
         }))
     })
+})
+
+userRouter.get("/", authMiddleware, async (req, res)=> {
+    const currentUser = await User.findById(req.userid);
+    res.json({
+            username: currentUser.username,
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            _id: currentUser._id
+        })
 })
 
 module.exports = userRouter;
